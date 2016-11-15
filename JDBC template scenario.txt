@@ -1,0 +1,45 @@
+build bankAccountDetails
+bankAccountService.createBankAccount(bankAccountDetails)
+
+===> bankAccountDao.createBankAccount(bankAccountDetails)
+===> create a map: "balance", bankAccountDetails.getBalance(); "ts", bankAccountDetails.getTime();
+	 simpleJdbcInsert.executeAndReturnKey(map)
+
+build fixedDepositDetails
+fixedDepositService.createFixedDeposit(fixedDepositDetails)
+
+===> sql = "insert into fixed_deposit_details(account_id, fd_creation_date, amount, tenure, active) values(?, ?, ?, ?, ?)";
+	 jdbcTemplate.update(new PreparedStatementCreator(){
+	 	createPreparedStatement(connection){
+		 	PreparedStatement ps = connection.prepareStatement(sql);
+		 	ps.setInt(1, fdd.getBankAccountId());
+			ps.setDate(2, fdd.getDate());
+			ps.setInt(3, fdd.getFdAmount());
+			ps.setInt(4, fdd.getTenure());
+			ps.setString(5, fdd.getActive());
+			return ps;
+
+		}
+	 };
+
+
+Another example:
+FixedDepositDetails getFixedDeposit(int fixedDepositId)
+	sql = "select * from fixed_deposit_details where fixed_deposit_id = :fixedDepositId";
+	Map map: "fixedDepositId", fixedDepositId
+	
+	fixedDepositDetails = NamedParameterJdbcTemplate.query(sql, map, new RowMapper<FixedDepositDetails>(){
+		// RowMapper: map rows of ResultSet on a per-row basis
+		FixedDepositDetails mapRow(ResultSet rs, int rowNum){
+			// input : ResultSet & rowNo, output: one entry
+			FixedDepositDetails fdd = new FixedDepositDetails();
+			fdd.setBankAccountId(rs.getInt("account_id"));
+			fdd.setFdAmount(rs.getInt("amount"));
+			fdd.setTenure(rs.getInt("tenure"));
+			return fdd;
+		}
+	}
+
+	return fixedDepositDetails;
+
+	})
