@@ -1,0 +1,30 @@
+Transaction management:
+
+FixedDepositServiceImpl: fixedDepositDao, bankAccountDao; 
+
+@Transactional
+fixedDepositService.createFixedDeposit(fixedDepositDetails)
+===> bankAccountDao.subtractFromAccount(fixedDepositDetails.getAccountId(), fdd.getFdAmount());
+	// account balance = account balance - fdAmout
+	fixedDepositDao.createFixedDeposit(fixedDepositDetails)
+	// create a fix deposit
+
+
+OR
+
+fixedDepositService.createFixedDeposit(fixedDepositDetails)
+===>
+	transactionTemplate.execute(
+		new TransactionObject<>(){
+			doInTransaction(transactionStatus){
+				try{
+					fixedDepositDao.createFixedDeposit(fixedDepositDetails);
+					bankAccountDao.subtractFromAccount(fixedDepositDetails.getAccountId(), fdd.getFdAmount());
+				}catch(Exception e){
+					transactionStatus.rollback();
+				}
+			}
+		}
+	)
+
+
