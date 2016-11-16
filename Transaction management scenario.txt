@@ -28,3 +28,16 @@ fixedDepositService.createFixedDeposit(fixedDepositDetails)
 	)
 
 
+
+
+Main.app
+
+bankAccountDetails(amount = 1000, timeStamp = current);
+bankAccountService.createBankAccount(bankAccountDetails);
+
+
+fixedDeposit(amount = 500, tenure = 12, time = current, id = incrementBy1)
+fixedDepositService.createFixedDeposit(fixedDeposit);  // transactional manner: subtract from bank account, create fixedDeposit
+
+
+
